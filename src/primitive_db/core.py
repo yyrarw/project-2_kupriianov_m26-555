@@ -20,8 +20,15 @@ from primitive_db.constants import (
     VALID_TYPES,
     VALUES_COUNT_MSG,
 )
-from primitive_db.decorators import confirm_action, handle_db_errors, log_time
+from primitive_db.decorators import (
+    confirm_action,
+    create_cacher,
+    handle_db_errors,
+    log_time,
+)
 from primitive_db.parser import invalid
+
+select_cache = create_cacher()
 
 
 def format_columns(schema):
@@ -150,10 +157,14 @@ def insert(metadata, table_name, values, table_data):
 @handle_db_errors
 @log_time
 def select(table_data, where_clause=None):
-    """Возвращает все записи или только подходящие под условие."""
-    if not where_clause:
-        return list(table_data)
-    return filter_rows(table_data, where_clause)
+    """Возвращает все записи или только подходящие под условие.
+
+    Результат кэшируется: ключ включает текущие данные таблицы, поэтому после
+    insert, update или delete повторный запрос вычисляется заново.
+    """
+    where_clause = where_clause or {}
+    cache_key = (repr(table_data), repr(where_clause))
+    return select_cache(cache_key, lambda: filter_rows(table_data, where_clause))
 
 
 @handle_db_errors
