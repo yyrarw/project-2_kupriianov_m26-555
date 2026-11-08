@@ -2,6 +2,8 @@
 
 from primitive_db.constants import (
     COLUMN_SEPARATOR,
+    DELETE_RECORD_ACTION,
+    DROP_TABLE_ACTION,
     ID_COLUMN,
     ID_TYPE,
     NO_MATCHES_MSG,
@@ -18,7 +20,7 @@ from primitive_db.constants import (
     VALID_TYPES,
     VALUES_COUNT_MSG,
 )
-from primitive_db.decorators import handle_db_errors
+from primitive_db.decorators import confirm_action, handle_db_errors
 from primitive_db.parser import invalid
 
 
@@ -108,6 +110,7 @@ def create_table(metadata, table_name, columns):
     return metadata
 
 
+@confirm_action(DROP_TABLE_ACTION)
 @handle_db_errors
 def drop_table(metadata, table_name):
     """Удаляет таблицу из метаданных."""
@@ -163,6 +166,7 @@ def update(table_data, table_name, set_clause, where_clause):
     return table_data
 
 
+@confirm_action(DELETE_RECORD_ACTION)
 @handle_db_errors
 def delete(table_data, table_name, where_clause):
     """Удаляет записи, подходящие под условие, и возвращает оставшиеся."""

@@ -1,6 +1,14 @@
 """Декораторы для операций с базой данных и замыкание для кэширования."""
 
-from primitive_db.constants import FILE_NOT_FOUND_MSG, UNEXPECTED_ERROR_MSG
+import prompt
+
+from primitive_db.constants import (
+    ACTION_CANCELLED_MSG,
+    CONFIRM_PROMPT,
+    CONFIRM_YES,
+    FILE_NOT_FOUND_MSG,
+    UNEXPECTED_ERROR_MSG,
+)
 
 
 def copy_metadata(wrapper, func):
@@ -26,3 +34,28 @@ def handle_db_errors(func):
         return None
 
     return copy_metadata(wrapper, func)
+
+
+def ask_confirmation(action_name):
+    """Спрашивает подтверждение; Ctrl+D или Ctrl+C считаются отказом."""
+    try:
+        answer = prompt.string(CONFIRM_PROMPT.format(action_name))
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return False
+    return answer.strip().lower() == CONFIRM_YES
+
+
+def confirm_action(action_name):
+    """Фабрика декораторов: перед действием запрашивает подтверждение [y/n]."""
+
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            if not ask_confirmation(action_name):
+                print(ACTION_CANCELLED_MSG)
+                return None
+            return func(*args, **kwargs)
+
+        return copy_metadata(wrapper, func)
+
+    return decorator

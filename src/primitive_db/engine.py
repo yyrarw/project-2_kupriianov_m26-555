@@ -117,6 +117,7 @@ def handle_create_table(metadata, text):
 def handle_drop_table(metadata, text):
     """drop_table <имя_таблицы>"""
     table_name = parse_table_name(const.COMMAND_DROP_TABLE, text)
+    get_table_schema(metadata, table_name)
     if drop_table(metadata, table_name) is None:
         return
     save_metadata(const.META_FILE, metadata)

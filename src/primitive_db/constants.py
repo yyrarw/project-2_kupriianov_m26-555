@@ -63,3 +63,8 @@ FILE_NOT_FOUND_MSG = (
     "Ошибка: Файл данных не найден. Возможно, база данных не инициализирована."
 )
 UNEXPECTED_ERROR_MSG = "Произошла непредвиденная ошибка: {}"
+CONFIRM_PROMPT = 'Вы уверены, что хотите выполнить "{}"? [y/n]: '
+CONFIRM_YES = "y"
+ACTION_CANCELLED_MSG = "Операция отменена."
+DROP_TABLE_ACTION = "удаление таблицы"
+DELETE_RECORD_ACTION = "удаление записи"
