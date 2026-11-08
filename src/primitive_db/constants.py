@@ -57,3 +57,9 @@ CLOSE_PAREN = ")"
 PUNCTUATION_CHARS = ASSIGN_SIGN + VALUES_SEPARATOR + OPEN_PAREN + CLOSE_PAREN
 QUOTE_CHARS = ('"', "'")
 BOOL_LITERALS = {"true": True, "false": False}
+
+# Декораторы
+FILE_NOT_FOUND_MSG = (
+    "Ошибка: Файл данных не найден. Возможно, база данных не инициализирована."
+)
+UNEXPECTED_ERROR_MSG = "Произошла непредвиденная ошибка: {}"
