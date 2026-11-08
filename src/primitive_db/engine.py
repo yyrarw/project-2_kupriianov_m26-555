@@ -17,7 +17,12 @@ from primitive_db.constants import (
     UNKNOWN_COMMAND_MSG,
 )
 from primitive_db.core import create_table, drop_table, list_tables
-from primitive_db.utils import load_metadata, save_metadata
+from primitive_db.utils import (
+    delete_table_data,
+    load_metadata,
+    save_metadata,
+    save_table_data,
+)
 
 
 def print_help():
@@ -56,9 +61,11 @@ def execute_command(args, metadata, user_input):
         ):
             if create_table(metadata, table_name, columns) is not None:
                 save_metadata(META_FILE, metadata)
+                save_table_data(table_name, [])
         case [command, table_name] if command == COMMAND_DROP_TABLE:
             if drop_table(metadata, table_name) is not None:
                 save_metadata(META_FILE, metadata)
+                delete_table_data(table_name)
         case [command, *_] if command in KNOWN_COMMANDS:
             print(INVALID_VALUE_MSG.format(user_input))
         case [command, *_]:

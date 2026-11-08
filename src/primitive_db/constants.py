@@ -2,6 +2,8 @@
 
 # Файлы и директории
 META_FILE = "db_meta.json"
+DATA_DIR = "data"
+DATA_FILE_EXTENSION = ".json"
 FILE_ENCODING = "utf-8"
 JSON_INDENT = 4
 
