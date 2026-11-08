@@ -81,15 +81,15 @@ def print_rows(schema, rows):
     print(table)
 
 
-def ensure_no_args(text):
-    """Проверяет, что у команды нет лишних аргументов."""
-    if text:
-        raise invalid(text)
-
-
 def invalid_command(command, text):
     """Создает исключение о некорректных аргументах команды."""
     return invalid(f"{command} {text}".strip())
+
+
+def ensure_no_args(command, text):
+    """Проверяет, что у команды нет лишних аргументов."""
+    if text:
+        raise invalid_command(command, text)
 
 
 def parse_table_name(command, text):
@@ -185,13 +185,13 @@ def execute_command(metadata, user_input):
     text = text.strip()
     match command:
         case const.COMMAND_EXIT:
-            ensure_no_args(text)
+            ensure_no_args(command, text)
             return False
         case const.COMMAND_HELP:
-            ensure_no_args(text)
+            ensure_no_args(command, text)
             print_help()
         case const.COMMAND_LIST_TABLES:
-            ensure_no_args(text)
+            ensure_no_args(command, text)
             list_tables(metadata)
         case const.COMMAND_CREATE_TABLE:
             handle_create_table(metadata, text)
