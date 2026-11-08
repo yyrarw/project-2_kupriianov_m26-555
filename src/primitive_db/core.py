@@ -20,7 +20,7 @@ from primitive_db.constants import (
     VALID_TYPES,
     VALUES_COUNT_MSG,
 )
-from primitive_db.decorators import confirm_action, handle_db_errors
+from primitive_db.decorators import confirm_action, handle_db_errors, log_time
 from primitive_db.parser import invalid
 
 
@@ -130,6 +130,7 @@ def list_tables(metadata):
 
 
 @handle_db_errors
+@log_time
 def insert(metadata, table_name, values, table_data):
     """Проверяет значения и добавляет запись с новым ID в данные таблицы."""
     schema = get_table_schema(metadata, table_name)
@@ -147,6 +148,7 @@ def insert(metadata, table_name, values, table_data):
 
 
 @handle_db_errors
+@log_time
 def select(table_data, where_clause=None):
     """Возвращает все записи или только подходящие под условие."""
     if not where_clause:

@@ -1,5 +1,7 @@
 """Декораторы для операций с базой данных и замыкание для кэширования."""
 
+import time
+
 import prompt
 
 from primitive_db.constants import (
@@ -7,6 +9,7 @@ from primitive_db.constants import (
     CONFIRM_PROMPT,
     CONFIRM_YES,
     FILE_NOT_FOUND_MSG,
+    LOG_TIME_MSG,
     UNEXPECTED_ERROR_MSG,
 )
 
@@ -59,3 +62,16 @@ def confirm_action(action_name):
         return copy_metadata(wrapper, func)
 
     return decorator
+
+
+def log_time(func):
+    """Замеряет время выполнения функции и печатает его."""
+
+    def wrapper(*args, **kwargs):
+        start = time.monotonic()
+        result = func(*args, **kwargs)
+        elapsed = time.monotonic() - start
+        print(LOG_TIME_MSG.format(func.__name__, elapsed))
+        return result
+
+    return copy_metadata(wrapper, func)
