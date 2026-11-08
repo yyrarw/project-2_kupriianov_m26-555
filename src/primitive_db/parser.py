@@ -149,3 +149,11 @@ def parse_delete(text):
     expect_keyword(tokens, 0, KEYWORD_FROM, text)
     expect_keyword(tokens, 2, KEYWORD_WHERE, text)
     return tokens[1], parse_where(tokens[3:], text)
+
+
+def parse_args(text):
+    """Разбивает аргументы простой команды с учетом кавычек."""
+    try:
+        return shlex.split(text)
+    except ValueError:
+        raise invalid(text) from None
