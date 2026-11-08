@@ -13,6 +13,18 @@ COLUMN_SEPARATOR = ":"
 
 # Интерфейс
 PROMPT_TEXT = ">>>Введите команду: "
+COMMAND_EXIT = "exit"
+COMMAND_HELP = "help"
+COMMAND_CREATE_TABLE = "create_table"
+COMMAND_DROP_TABLE = "drop_table"
+COMMAND_LIST_TABLES = "list_tables"
+KNOWN_COMMANDS = (
+    COMMAND_EXIT,
+    COMMAND_HELP,
+    COMMAND_CREATE_TABLE,
+    COMMAND_DROP_TABLE,
+    COMMAND_LIST_TABLES,
+)
 
 # Сообщения
 INVALID_VALUE_MSG = "Некорректное значение: {}. Попробуйте снова."
