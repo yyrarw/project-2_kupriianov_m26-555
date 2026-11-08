@@ -17,6 +17,7 @@ from primitive_db.core import (
     validate_clause,
     validate_set_clause,
 )
+from primitive_db.decorators import handle_db_errors
 from primitive_db.parser import (
     invalid,
     parse_args,
@@ -99,33 +100,41 @@ def parse_table_name(command, text):
     return args[0]
 
 
+@handle_db_errors
 def handle_create_table(metadata, text):
     """create_table <имя_таблицы> <столбец:тип> ..."""
     args = parse_args(text)
     if len(args) < 2:
         raise invalid_command(const.COMMAND_CREATE_TABLE, text)
     table_name, *columns = args
-    create_table(metadata, table_name, columns)
+    if create_table(metadata, table_name, columns) is None:
+        return
     save_metadata(const.META_FILE, metadata)
     save_table_data(table_name, [])
 
 
+@handle_db_errors
 def handle_drop_table(metadata, text):
     """drop_table <имя_таблицы>"""
     table_name = parse_table_name(const.COMMAND_DROP_TABLE, text)
-    drop_table(metadata, table_name)
+    get_table_schema(metadata, table_name)
+    if drop_table(metadata, table_name) is None:
+        return
     save_metadata(const.META_FILE, metadata)
     delete_table_data(table_name)
 
 
+@handle_db_errors
 def handle_insert(metadata, text):
     """insert into <имя_таблицы> values (...)"""
     table_name, values = parse_insert(text)
     table_data = load_table_data(table_name)
-    insert(metadata, table_name, values, table_data)
+    if insert(metadata, table_name, values, table_data) is None:
+        return
     save_table_data(table_name, table_data)
 
 
+@handle_db_errors
 def handle_select(metadata, text):
     """select from <имя_таблицы> [where <столбец> = <значение>]"""
     table_name, where_clause = parse_select(text)
@@ -133,9 +142,11 @@ def handle_select(metadata, text):
     if where_clause:
         validate_clause(schema, where_clause)
     rows = select(load_table_data(table_name), where_clause)
-    print_rows(schema, rows)
+    if rows is not None:
+        print_rows(schema, rows)
 
 
+@handle_db_errors
 def handle_update(metadata, text):
     """update <имя_таблицы> set <столбец> = <значение> where <условие>"""
     table_name, set_clause, where_clause = parse_update(text)
@@ -143,25 +154,31 @@ def handle_update(metadata, text):
     validate_set_clause(schema, set_clause)
     validate_clause(schema, where_clause)
     table_data = load_table_data(table_name)
-    update(table_data, table_name, set_clause, where_clause)
+    if update(table_data, table_name, set_clause, where_clause) is None:
+        return
     save_table_data(table_name, table_data)
 
 
+@handle_db_errors
 def handle_delete(metadata, text):
     """delete from <имя_таблицы> where <столбец> = <значение>"""
     table_name, where_clause = parse_delete(text)
     schema = get_table_schema(metadata, table_name)
     validate_clause(schema, where_clause)
     table_data = delete(load_table_data(table_name), table_name, where_clause)
+    if table_data is None:
+        return
     save_table_data(table_name, table_data)
 
 
+@handle_db_errors
 def handle_info(metadata, text):
     """info <имя_таблицы>"""
     table_name = parse_table_name(const.COMMAND_INFO, text)
     table_info(metadata, table_name, load_table_data(table_name))
 
 
+@handle_db_errors
 def execute_command(metadata, user_input):
     """Выполняет команду пользователя; возвращает False, если нужно выйти."""
     command, _, text = user_input.partition(" ")
@@ -213,8 +230,5 @@ def run():
         user_input = read_command()
         if not user_input:
             continue
-        try:
-            if not execute_command(metadata, user_input):
-                break
-        except (KeyError, ValueError) as error:
-            print(error.args[0])
+        if execute_command(metadata, user_input) is False:
+            break

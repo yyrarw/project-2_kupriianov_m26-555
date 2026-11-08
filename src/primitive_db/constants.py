@@ -57,3 +57,15 @@ CLOSE_PAREN = ")"
 PUNCTUATION_CHARS = ASSIGN_SIGN + VALUES_SEPARATOR + OPEN_PAREN + CLOSE_PAREN
 QUOTE_CHARS = ('"', "'")
 BOOL_LITERALS = {"true": True, "false": False}
+
+# Декораторы
+FILE_NOT_FOUND_MSG = (
+    "Ошибка: Файл данных не найден. Возможно, база данных не инициализирована."
+)
+UNEXPECTED_ERROR_MSG = "Произошла непредвиденная ошибка: {}"
+CONFIRM_PROMPT = 'Вы уверены, что хотите выполнить "{}"? [y/n]: '
+CONFIRM_YES = "y"
+ACTION_CANCELLED_MSG = "Операция отменена."
+DROP_TABLE_ACTION = "удаление таблицы"
+DELETE_RECORD_ACTION = "удаление записи"
+LOG_TIME_MSG = "Функция {} выполнилась за {:.3f} секунд."

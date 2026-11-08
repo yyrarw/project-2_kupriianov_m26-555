@@ -2,6 +2,8 @@
 
 from primitive_db.constants import (
     COLUMN_SEPARATOR,
+    DELETE_RECORD_ACTION,
+    DROP_TABLE_ACTION,
     ID_COLUMN,
     ID_TYPE,
     NO_MATCHES_MSG,
@@ -18,7 +20,15 @@ from primitive_db.constants import (
     VALID_TYPES,
     VALUES_COUNT_MSG,
 )
+from primitive_db.decorators import (
+    confirm_action,
+    create_cacher,
+    handle_db_errors,
+    log_time,
+)
 from primitive_db.parser import invalid
+
+select_cache = create_cacher()
 
 
 def format_columns(schema):
@@ -89,6 +99,7 @@ def filter_rows(table_data, where_clause):
     return [row for row in table_data if matches(row, where_clause)]
 
 
+@handle_db_errors
 def create_table(metadata, table_name, columns):
     """Создает таблицу со столбцом ID:int и столбцами columns."""
     if table_name in metadata:
@@ -106,6 +117,8 @@ def create_table(metadata, table_name, columns):
     return metadata
 
 
+@confirm_action(DROP_TABLE_ACTION)
+@handle_db_errors
 def drop_table(metadata, table_name):
     """Удаляет таблицу из метаданных."""
     get_table_schema(metadata, table_name)
@@ -123,6 +136,8 @@ def list_tables(metadata):
         print(f"- {table_name}")
 
 
+@handle_db_errors
+@log_time
 def insert(metadata, table_name, values, table_data):
     """Проверяет значения и добавляет запись с новым ID в данные таблицы."""
     schema = get_table_schema(metadata, table_name)
@@ -139,13 +154,20 @@ def insert(metadata, table_name, values, table_data):
     return table_data
 
 
+@handle_db_errors
+@log_time
 def select(table_data, where_clause=None):
-    """Возвращает все записи или только подходящие под условие."""
-    if not where_clause:
-        return list(table_data)
-    return filter_rows(table_data, where_clause)
+    """Возвращает все записи или только подходящие под условие.
+
+    Результат кэшируется: ключ включает текущие данные таблицы, поэтому после
+    insert, update или delete повторный запрос вычисляется заново.
+    """
+    where_clause = where_clause or {}
+    cache_key = (repr(table_data), repr(where_clause))
+    return select_cache(cache_key, lambda: filter_rows(table_data, where_clause))
 
 
+@handle_db_errors
 def update(table_data, table_name, set_clause, where_clause):
     """Обновляет поля set_clause у записей, подходящих под условие."""
     matched = filter_rows(table_data, where_clause)
@@ -157,6 +179,8 @@ def update(table_data, table_name, set_clause, where_clause):
     return table_data
 
 
+@confirm_action(DELETE_RECORD_ACTION)
+@handle_db_errors
 def delete(table_data, table_name, where_clause):
     """Удаляет записи, подходящие под условие, и возвращает оставшиеся."""
     matched = filter_rows(table_data, where_clause)
@@ -167,6 +191,7 @@ def delete(table_data, table_name, where_clause):
     return [row for row in table_data if not matches(row, where_clause)]
 
 
+@handle_db_errors
 def table_info(metadata, table_name, table_data):
     """Печатает столбцы таблицы и количество записей в ней."""
     schema = get_table_schema(metadata, table_name)
