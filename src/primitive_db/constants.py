@@ -36,3 +36,18 @@ TABLE_NOT_FOUND_MSG = 'Ошибка: Таблица "{}" не существуе
 TABLE_CREATED_MSG = 'Таблица "{}" успешно создана со столбцами: {}'
 TABLE_DROPPED_MSG = 'Таблица "{}" успешно удалена.'
 NO_TABLES_MSG = "В базе данных пока нет таблиц."
+
+# Синтаксис команд с данными
+KEYWORD_INTO = "into"
+KEYWORD_VALUES = "values"
+KEYWORD_FROM = "from"
+KEYWORD_WHERE = "where"
+KEYWORD_SET = "set"
+KEYWORD_AND = "and"
+ASSIGN_SIGN = "="
+VALUES_SEPARATOR = ","
+OPEN_PAREN = "("
+CLOSE_PAREN = ")"
+PUNCTUATION_CHARS = ASSIGN_SIGN + VALUES_SEPARATOR + OPEN_PAREN + CLOSE_PAREN
+QUOTE_CHARS = ('"', "'")
+BOOL_LITERALS = {"true": True, "false": False}
